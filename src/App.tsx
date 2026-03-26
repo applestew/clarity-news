@@ -25,13 +25,6 @@ const INITIAL_STATS: DetoxStats = {
   ]
 };
 
-const INDIAN_STATES = [
-    "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", 
-    "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", 
-    "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", 
-    "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Delhi", "Jammu and Kashmir"
-];
-
 const MAJOR_COUNTRIES = [
     "United States", "United Kingdom", "Canada", "Australia", "Germany", "France", "Japan", "China", "Russia", "Ukraine", "Israel", "Palestine"
 ];
@@ -76,11 +69,8 @@ const App: React.FC = () => {
         if (background) {
             setPendingArticles(fetchedArticles);
         } else {
-            setArticles(prev => [...prev, ...fetchedArticles]); // Append if loading more, or set if fresh? 
-            // For main search/filter, we usually want to replace. 
-            // But for "Load More", we append. 
-            // Let's simplify: logic below handles "replace" vs "append"
-             setArticles(fetchedArticles);
+            console.log("STATE DATA: Updating articles in src App.tsx", fetchedArticles.length);
+            setArticles(fetchedArticles);
              setLastUpdated(Date.now());
              localStorage.setItem(CACHE_KEY, JSON.stringify({
                 articles: fetchedArticles,
@@ -104,6 +94,7 @@ const App: React.FC = () => {
       setLoading(true);
       setArticles([]); // Clear current
       fetchCuratedNews(profile, scope, query, region, []).then(fetched => {
+          console.log("STATE DATA (Manual): Updating articles in src App.tsx", fetched.length);
           setArticles(fetched);
           setLastUpdated(Date.now());
           setLoading(false);
@@ -211,7 +202,7 @@ const App: React.FC = () => {
       if(!userProfile) return;
       setFilterScope(scope);
       if (scope === 'state' && !regionFilter) return;
-      handleManualLoad(userProfile, scope, '', regionFilter);
+      handleManualLoad(userProfile, scope, '', '');
   };
 
   const handleDropdownChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -302,31 +293,18 @@ const App: React.FC = () => {
                         <Zap size={16} /> Top 10
                     </button>
                     
-                    {(filterScope === 'top10' || filterScope === 'domestic' || filterScope === 'state') && (
+                    {/* Domestic Mode - Only show if user is NOT in India */}
+                    {userProfile?.country?.trim().toLowerCase() !== 'india' && (filterScope === 'top10' || filterScope === 'domestic') && (
                         <div className="flex items-center gap-2">
                             <button 
                                 onClick={() => {
                                     setFilterScope('domestic');
                                     if(userProfile) handleManualLoad(userProfile, 'domestic');
                                 }}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all border ${filterScope === 'domestic' || filterScope === 'state' ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all border ${filterScope === 'domestic' ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
                             >
-                                <MapPin size={16} /> Domestic ({userProfile?.country})
+                                <MapPin size={16} /> Domestic
                             </button>
-                            
-                            {(filterScope === 'domestic' || filterScope === 'state') && userProfile?.country === 'India' && (
-                                <select 
-                                    value={regionFilter}
-                                    onChange={(e) => {
-                                        setFilterScope('state');
-                                        handleDropdownChange(e);
-                                    }}
-                                    className="px-4 py-2 rounded-full text-sm border border-slate-200 bg-white focus:outline-none focus:border-brand-500"
-                                >
-                                    <option value="">Select State</option>
-                                    {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
-                                </select>
-                            )}
                         </div>
                     )}
 
@@ -338,17 +316,6 @@ const App: React.FC = () => {
                             >
                                 <Globe size={16} /> World
                             </button>
-                            
-                            {filterScope === 'world' && (
-                                <select 
-                                    value={regionFilter}
-                                    onChange={handleDropdownChange}
-                                    className="px-4 py-2 rounded-full text-sm border border-slate-200 bg-white focus:outline-none focus:border-brand-500"
-                                >
-                                    <option value="">Select Region</option>
-                                    {MAJOR_COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
-                                </select>
-                            )}
                         </div>
                     )}
                     

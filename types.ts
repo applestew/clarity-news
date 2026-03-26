@@ -36,6 +36,7 @@ export interface UserProfile {
   name: string;
   email: string;
   country: string;
+  city: string;
   topics: string[];
   prioritizeLocal: boolean;
   detoxLevel: 'low' | 'medium' | 'strict';

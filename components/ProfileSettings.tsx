@@ -90,6 +90,15 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onUpdate, on
                  />
               </div>
             </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">City</label>
+              <input 
+                type="text" 
+                value={formData.city}
+                onChange={(e) => handleChange('city', e.target.value)}
+                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white"
+              />
+            </div>
           </div>
         </section>
 

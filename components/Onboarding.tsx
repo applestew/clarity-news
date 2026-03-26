@@ -21,6 +21,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
   const [step, setStep] = useState(1);
   const [name, setName] = useState("");
   const [country, setCountry] = useState("India");
+  const [city, setCity] = useState("");
   const [email, setEmail] = useState("");
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [prioritizeLocal, setPrioritizeLocal] = useState(true);
@@ -38,6 +39,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
       name: name || "User",
       email: email || "",
       country,
+      city: city || "General",
       topics: selectedTopics,
       prioritizeLocal,
       detoxLevel: 'medium'
@@ -88,19 +90,28 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">Where are you based?</label>
-                    <select 
-                        value={country}
-                        onChange={(e) => setCountry(e.target.value)}
-                        className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all bg-white"
-                    >
-                        {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
+                    <div className="grid grid-cols-2 gap-4">
+                        <select 
+                            value={country}
+                            onChange={(e) => setCountry(e.target.value)}
+                            className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all bg-white"
+                        >
+                            {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                        <input 
+                            type="text" 
+                            value={city}
+                            onChange={(e) => setCity(e.target.value)}
+                            className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all bg-white"
+                            placeholder="City"
+                        />
+                    </div>
                 </div>
             </div>
 
             <button 
                 onClick={() => setStep(2)}
-                disabled={!name}
+                disabled={!name || !city}
                 className="w-full bg-brand-600 text-white py-3 rounded-lg font-medium hover:bg-brand-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
                 Next <ArrowRight size={18} />

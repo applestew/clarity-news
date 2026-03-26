@@ -26,13 +26,6 @@ const INITIAL_STATS: DetoxStats = {
 };
 
 // Hardcoded lists for dropdowns
-const INDIAN_STATES = [
-    "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", 
-    "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", 
-    "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", 
-    "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Delhi", "Jammu and Kashmir"
-];
-
 const MAJOR_COUNTRIES = [
     "United States", "United Kingdom", "Canada", "Australia", "Germany", "France", "Japan", "China", "Russia", "Ukraine", "Israel", "Palestine"
 ];
@@ -69,6 +62,7 @@ const App: React.FC = () => {
     const fetchedArticles = await fetchCuratedNews(profile, scope, query, region);
     
     if (fetchedArticles.length > 0) {
+        console.log("STATE DATA: Updating articles in root App.tsx", fetchedArticles.length);
         setArticles(fetchedArticles);
         const timestamp = Date.now();
         setLastUpdated(timestamp);
@@ -184,7 +178,7 @@ const App: React.FC = () => {
       if (scope === 'state' && !regionFilter) return;
       
       setArticles([]); // Clear when switching major contexts to avoid confusion
-      loadNews(userProfile, scope, '', regionFilter);
+      loadNews(userProfile, scope, '', '');
   };
 
   const handleDropdownChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -203,7 +197,7 @@ const App: React.FC = () => {
 
   const handleRefresh = () => {
       if (userProfile) {
-          loadNews(userProfile, filterScope, searchQuery, regionFilter);
+          loadNews(userProfile, filterScope, searchQuery);
       }
   }
 
@@ -277,8 +271,8 @@ const App: React.FC = () => {
                         <Zap size={16} /> Top 10
                     </button>
                     
-                    {/* Domestic Mode */}
-                    {(filterScope === 'top10' || filterScope === 'domestic' || filterScope === 'state') && (
+                    {/* Domestic Mode - Only show if user is NOT in India */}
+                    {userProfile?.country.toLowerCase() !== 'india' && (filterScope === 'top10' || filterScope === 'domestic') && (
                         <div className="flex items-center gap-2">
                             <button 
                                 onClick={() => {
@@ -288,25 +282,10 @@ const App: React.FC = () => {
                                         loadNews(userProfile, 'domestic');
                                     }
                                 }}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all border ${filterScope === 'domestic' || filterScope === 'state' ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all border ${filterScope === 'domestic' ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
                             >
-                                <MapPin size={16} /> Domestic ({userProfile?.country})
+                                <MapPin size={16} /> Domestic
                             </button>
-                            
-                            {/* State Dropdown - Only shows if Domestic is active */}
-                            {(filterScope === 'domestic' || filterScope === 'state') && userProfile?.country === 'India' && (
-                                <select 
-                                    value={regionFilter}
-                                    onChange={(e) => {
-                                        setFilterScope('state');
-                                        handleDropdownChange(e);
-                                    }}
-                                    className="px-4 py-2 rounded-full text-sm border border-slate-200 bg-white focus:outline-none focus:border-brand-500"
-                                >
-                                    <option value="">Select State</option>
-                                    {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
-                                </select>
-                            )}
                         </div>
                     )}
 
@@ -319,18 +298,6 @@ const App: React.FC = () => {
                             >
                                 <Globe size={16} /> World
                             </button>
-                            
-                            {/* Country Dropdown - Only shows if World is active */}
-                            {filterScope === 'world' && (
-                                <select 
-                                    value={regionFilter}
-                                    onChange={handleDropdownChange}
-                                    className="px-4 py-2 rounded-full text-sm border border-slate-200 bg-white focus:outline-none focus:border-brand-500"
-                                >
-                                    <option value="">Select Region</option>
-                                    {MAJOR_COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
-                                </select>
-                            )}
                         </div>
                     )}
                     
