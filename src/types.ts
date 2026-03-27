@@ -16,6 +16,9 @@ export interface NewsArticle {
   category: string;
   country: string;
   newsType: string;
+  originalTitle?: string;
+  rewrittenTitle?: string;
+  sentiment?: 'positive' | 'neutral' | 'negative';
 }
 
 export interface TimelineEvent {
@@ -26,9 +29,16 @@ export interface TimelineEvent {
 export interface DetoxStats {
   dailyTimeSpent: number;
   storiesRead: number;
-  anxietyScore: number;
+  zenScore: number;
   topicsAvoided: string[];
   moodTrend: { day: string; mood: number }[];
+  sentimentDistribution: {
+    positive: number;
+    neutral: number;
+    negative: number;
+  };
+  shieldedCount: number;
+  totalProcessed: number;
 }
 
 export interface UserProfile {

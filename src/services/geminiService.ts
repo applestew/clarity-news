@@ -21,6 +21,8 @@ export const fetchCuratedNews = async (
         {
           id: `ind-fb-1-${Date.now()}`,
           title: "India's Digital Rupee expands to nationwide retail use",
+          rewrittenTitle: "Digital Rupee reaches milestone in nationwide retail rollout",
+          sentiment: "positive",
           summary: "The RBI announces the successful completion of the pilot phase for the Central Bank Digital Currency (e-Rupee), now moving to full retail integration.",
           keyPoints: ["Nationwide rollout started", "QR code interoperability improved", "Focus on offline transactions"],
           source: "The Hindu",
@@ -32,6 +34,8 @@ export const fetchCuratedNews = async (
         {
           id: `ind-fb-2-${Date.now()}`,
           title: "ISRO prepares for next-gen reusable launch vehicle test",
+          rewrittenTitle: "ISRO prepares for next-gen reusable launch vehicle test",
+          sentiment: "neutral",
           summary: "India's space agency is set to conduct a landing experiment for its RLV-LEX program at the Chitradurga range.",
           keyPoints: ["Chitradurga test site ready", "Autonomous landing focus", "Cost reduction for future missions"],
           source: "ISRO Tech",
@@ -42,18 +46,22 @@ export const fetchCuratedNews = async (
         },
         {
           id: `ind-fb-3-${Date.now()}`,
-          title: "New high-speed rail corridor approved for Southern India",
-          summary: "The Ministry of Railways has given the green light for a new Bullet Train project connecting major IT hubs in the South.",
-          keyPoints: ["Connectivity for IT corridor", "Environmental impact study completed", "Japanese collaboration confirmed"],
-          source: "NDTV India",
-          sourceUrl: "https://www.ndtv.com",
+          title: "Severe storm causes damage in coastal regions",
+          rewrittenTitle: "Coastal regions initiate recovery after seasonal storm",
+          sentiment: "negative",
+          summary: "Local authorities are responding to damage caused by a severe weather system in the coastal areas.",
+          keyPoints: ["Recovery efforts underway", "Seasonal weather patterns", "Emergency services deployed"],
+          source: "National News",
+          sourceUrl: "https://news.google.com",
           timestamp: new Date().toISOString(),
-          imageUrl: "https://images.unsplash.com/photo-1532105956626-ceac2739c9ef?auto=format&fit=crop&q=80&w=800",
-          relatedImages: [], bias: 'Center', biasScore: 50, importanceScore: 7, verified: true, timeline: [{date: "Tuesday", event: "Project Approval"}], category: "Infrastructure", country: "India", newsType: "National"
+          imageUrl: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80&w=800",
+          relatedImages: [], bias: 'Center', biasScore: 50, importanceScore: 7, verified: true, timeline: [{date: "Today", event: "Update"}], category: "Safety", country: "India", newsType: "National"
         },
         {
           id: `ind-fb-4-${Date.now()}`,
           title: "Indian Premier League introduces new 'Impact Player' updates",
+          rewrittenTitle: "IPL tactical substitution rules updated for better balance",
+          sentiment: "neutral",
           summary: "Cricket officials announce minor tweaks to the tactical substitution rule to further enhance game strategy in the upcoming season.",
           keyPoints: ["Rule refinement for balance", "Coaches' feedback incorporated", "Upcoming auction previews"],
           source: "Sports Star",
@@ -65,6 +73,8 @@ export const fetchCuratedNews = async (
         {
           id: `ind-fb-5-${Date.now()}`,
           title: "Traditional weaving clusters get a modern design boost",
+          rewrittenTitle: "Rural artisans paired with top designers to boost handloom industry",
+          sentiment: "positive",
           summary: "Govt-backed initiative pairs rural artisans with top fashion designers to bring Indian handlooms to global luxury markets.",
           keyPoints: ["Artisan-Designer partnerships", "Global export focus", "E-commerce training for weavers"],
           source: "Vogue India",
@@ -80,6 +90,8 @@ export const fetchCuratedNews = async (
         {
           id: `world-fb-1-${Date.now()}`,
           title: "UN Climate Summit adopts landmark biodiversity pact",
+          rewrittenTitle: "Historic UN agreement reached to protect 30% of planet by 2030",
+          sentiment: "positive",
           summary: "Delegates from over 190 nations have signed a historic agreement to protect 30% of the planet's land and oceans by 2030.",
           keyPoints: ["30x30 protection goal", "Funding for developing nations", "Indigenous rights recognized"],
           source: "UN News",
@@ -91,6 +103,8 @@ export const fetchCuratedNews = async (
         {
           id: `world-fb-2-${Date.now()}`,
           title: "Global Supply Chain eases as shipping costs stabilize",
+          rewrittenTitle: "Global Supply Chain eases as shipping costs stabilize",
+          sentiment: "neutral",
           summary: "New data indicates that the world's major trade routes are finally returning to pre-pandemic efficiency levels.",
           keyPoints: ["Shipping container rates down 40%", "Port congestion cleared", "Warehouse inventory levels optimal"],
           source: "Reuters Business",
@@ -101,18 +115,22 @@ export const fetchCuratedNews = async (
         },
         {
           id: `world-fb-3-${Date.now()}`,
-          title: "Artificial Intelligence: EU Parliament votes on AI Act",
-          summary: "The European Union is set to implement the world's first comprehensive legal framework for AI, focusing on risk-based classification.",
-          keyPoints: ["Risk-based rules implemented", "Facial recognition limits", "Transparency for deepfakes"],
-          source: "Euronews",
-          sourceUrl: "https://www.euronews.com",
+          title: "Intense geopolitical tensions lead to new trade restrictions",
+          rewrittenTitle: "Nations adjust trade policies amidst changing global relations",
+          sentiment: "negative",
+          summary: "New trade barriers are being implemented as global diplomatic relations face new challenges.",
+          keyPoints: ["Export limits on tech", "Tariff updates announced", "Diplomatic talks ongoing"],
+          source: "Global News",
+          sourceUrl: "https://news.google.com",
           timestamp: new Date().toISOString(),
           imageUrl: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=800",
-          relatedImages: [], bias: 'Center', biasScore: 50, importanceScore: 9, verified: true, timeline: [{date: "Today", event: "Final Vote"}], category: "Policy", country: "Global", newsType: "World"
+          relatedImages: [], bias: 'Center', biasScore: 50, importanceScore: 9, verified: true, timeline: [{date: "Today", event: "Policy shift"}], category: "Politics", country: "Global", newsType: "World"
         },
         {
           id: `world-fb-4-${Date.now()}`,
           title: "Renewable milestones: Wind and Solar outpace Coal",
+          rewrittenTitle: "Clean energy reaches major tipping point in industrial economies",
+          sentiment: "positive",
           summary: "For the first time in history, renewable energy generation exceeded coal generation in major industrial economies.",
           keyPoints: ["Clean energy tipping point", "Major grid investments", "Emissions reduction projections"],
           source: "Energy Now",
@@ -124,6 +142,8 @@ export const fetchCuratedNews = async (
         {
           id: `world-fb-5-${Date.now()}`,
           title: "Deep Sea Exploration: 100 new species discovered",
+          rewrittenTitle: "Research expedition identifies over 100 new marine organisms",
+          sentiment: "positive",
           summary: "An international research expedition in the Southern Pacific has identified over 100 previously unknown marine organisms.",
           keyPoints: ["Abyssal plain biodiversity", "Bioluminescent discoveries", "Research paper published"],
           source: "National Geographic",
@@ -139,6 +159,8 @@ export const fetchCuratedNews = async (
         {
           id: `loc-fb-1-${Date.now()}`,
           title: `Major focus on ${profile.country} National Security updates`,
+          rewrittenTitle: `Government strengthens infrastructure protection and digital sovereignty in ${profile.country}`,
+          sentiment: "neutral",
           summary: "Government officials announce new measures to strengthen infrastructure protection and digital sovereignty.",
           keyPoints: ["Cybersecurity boost", "Infrastructure audit started", "Regional cooperation agreements"],
           source: "Morning Post",
@@ -150,6 +172,8 @@ export const fetchCuratedNews = async (
         {
           id: `loc-fb-2-${Date.now()}`,
           title: `Health Tech: ${profile.country} sees rise in telemedicine adoption`,
+          rewrittenTitle: `Digital health consultations on the rise in ${profile.country}`,
+          sentiment: "positive",
           summary: "New report shows that over 60% of citizens now prefer initial digital consultations for routine health checkups.",
           keyPoints: ["Digital health platform growth", "Rural access improved", "Patient data privacy updates"],
           source: "Health Daily",
@@ -160,7 +184,22 @@ export const fetchCuratedNews = async (
         },
         {
           id: `loc-fb-3-${Date.now()}`,
+          title: `Extreme economic fluctuations causing concern in ${profile.country}`,
+          rewrittenTitle: `Experts analyze recent economic shifts in ${profile.country}`,
+          sentiment: "negative",
+          summary: "Financial analysts are monitoring recent volatility in the national markets.",
+          keyPoints: ["Market volatility reported", "Economic outlook update", "Fiscal policy discussions"],
+          source: "Finance Focus",
+          sourceUrl: "https://news.google.com",
+          timestamp: new Date().toISOString(),
+          imageUrl: "https://images.unsplash.com/photo-1611974715853-2b8ef9a09800?auto=format&fit=crop&q=80&w=800",
+          relatedImages: [], bias: 'Center', biasScore: 50, importanceScore: 7, verified: true, timeline: [{date: "Today", event: "Market Close"}], category: "Finance", country: profile.country, newsType: "Top"
+        },
+        {
+          id: `loc-fb-4-${Date.now()}`,
           title: `Innovation: Local startups in ${profile.city} lead venture funding`,
+          rewrittenTitle: `Local startups in ${profile.city} see growth in venture funding`,
+          sentiment: "positive",
           summary: "Successfully raising bridge rounds, local entrepreneurs are focusing on sustainable logistics and AI-driven services.",
           keyPoints: ["Funding rounds completed", "Focus on local talent", "Incubator programs expanding"],
           source: "City Business",
@@ -259,7 +298,7 @@ export const fetchCuratedNews = async (
 
     // Step 1: Get Real Information via Google Search Grounding
     const searchResponse = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.0-flash",
       contents: searchPrompt,
       config: {
         tools: [{ googleSearch: {} }],
@@ -287,7 +326,7 @@ export const fetchCuratedNews = async (
     
     // Step 2: Structure the raw information into our strict schema
     const structuredResponse = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.0-flash",
       contents: `Convert this news data into JSON.
       
       INPUT: ${rawNewsText}
@@ -468,7 +507,7 @@ export const fetchCuratedNews = async (
 export const analyzeDetoxProgress = async (readHistoryCount: number, userName: string): Promise<string> => {
     try {
         const response = await ai.models.generateContent({
-            model: "gemini-1.5-flash",
+            model: "gemini-2.0-flash",
             contents: `User ${userName} read ${readHistoryCount} articles. Give 1 short encouraging detox tip.`,
             config: { maxOutputTokens: 30 }
         });
@@ -477,3 +516,97 @@ export const analyzeDetoxProgress = async (readHistoryCount: number, userName: s
         return "Balance is key.";
     }
 }
+// ? ADDED: Sentiment Analysis Module
+export const analyzeSentiment = async (headline: string): Promise<"positive" | "neutral" | "negative"> => {
+    try {
+        const response = await ai.models.generateContent({
+            model: "gemini-2.0-flash",
+            contents: `Analyze this news headline for sentiment and credibility.
+            
+            Classify as:
+            - POSITIVE: Genuine good news, constructive updates, scientific breakthroughs, or uplifting community stories. Must be credible.
+            - NEGATIVE: Tragic news, accidents, toxic politics, clickbait, sensationalist claims, or suspicious/unverified "fake news" style headlines.
+            - NEUTRAL: Factual, objective, and dry reporting on events, markets, or policies.
+            
+            Headline: "${headline}"`,
+            config: { 
+                maxOutputTokens: 20,
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.OBJECT,
+                    properties: {
+                        sentiment: { type: Type.STRING },
+                        isSensational: { type: Type.BOOLEAN },
+                        credibilityScore: { type: Type.NUMBER }
+                    },
+                    required: ["sentiment"]
+                }
+            }
+        });
+        const data = JSON.parse(response.text || "{}");
+        const sentiment = (data.sentiment || "neutral").toLowerCase();
+        
+        // If it's sensational or low credibility, treat as negative even if it sounds "good"
+        if (data.isSensational === true || (data.credibilityScore !== undefined && data.credibilityScore < 0.4)) {
+            return "negative";
+        }
+
+        if (sentiment.includes("positive")) return "positive";
+        if (sentiment.includes("negative")) return "negative";
+        return "neutral";
+    } catch (e) {
+        console.error("DETOX DEBUG: Sentiment Analysis Failed", e);
+        return "neutral";
+    }
+}
+
+// ? ADDED: Headline Rewriting Module
+export const rewriteHeadline = async (headline: string): Promise<string> => {
+    try {
+        const response = await ai.models.generateContent({
+            model: "gemini-2.0-flash",
+            contents: `Act as a calm, objective news editor. 
+            Rewrite this news headline to be factual, boring, and non-sensational. 
+            Remove emotional triggers, clickbait phrases, and exaggerations.
+            If the headline is already factual, return it as is.
+            
+            Headline: "${headline}"`,
+            config: { 
+                maxOutputTokens: 100,
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.OBJECT,
+                    properties: {
+                        rewritten: { type: Type.STRING }
+                    },
+                    required: ["rewritten"]
+                }
+            }
+        });
+        const data = JSON.parse(response.text || "{}");
+        return data.rewritten || headline;
+    } catch (e) {
+        return headline;
+    }
+}
+
+// ?? INTEGRATION POINT: Processing Pipeline
+export const processArticleDetox = async (article: NewsArticle): Promise<NewsArticle> => {
+    try {
+        const sentiment = await analyzeSentiment(article.title);
+        const rewrittenTitle = await rewriteHeadline(article.title);
+        
+        console.log(`DETOX DEBUG: Processed article "${article.title.substring(0, 30)}" -> [${sentiment}]`);
+        
+        return {
+            ...article,
+            originalTitle: article.title,
+            rewrittenTitle,
+            sentiment
+        };
+    } catch (e) {
+        console.error("DETOX DEBUG: processArticleDetox failed", e);
+        return article;
+    }
+};
+

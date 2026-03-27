@@ -1,14 +1,15 @@
 
 import React from 'react';
 import { NewsArticle } from '../types';
-import { CheckCircle2, ChevronRight, Scale, Globe, Tag, Zap } from 'lucide-react';
+import { CheckCircle2, ChevronRight, Scale, Globe, Tag, Zap, ShieldCheck, Sparkles } from 'lucide-react';
 
 interface NewsCardProps {
   article: NewsArticle;
   onClick: (article: NewsArticle) => void;
+  detoxMode?: boolean;
 }
 
-const NewsCard: React.FC<NewsCardProps> = ({ article, onClick }) => {
+const NewsCard: React.FC<NewsCardProps> = ({ article, onClick, detoxMode }) => {
   
   const getImportanceColor = (score: number) => {
     if (score >= 8) return 'bg-purple-100 text-purple-700 border-purple-200';
@@ -64,10 +65,28 @@ const NewsCard: React.FC<NewsCardProps> = ({ article, onClick }) => {
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded border bg-orange-50 text-orange-600 border-orange-100 flex items-center gap-1">
                     <Zap size={10} /> {article.newsType}
                 </span>
+
+                {detoxMode && article.sentiment && (
+                    <span className={`px-2 py-0.5 rounded border text-[10px] font-bold flex items-center gap-1 ${
+                        article.sentiment === 'positive' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
+                        article.sentiment === 'negative' ? 'bg-amber-50 text-amber-700 border-amber-100' :
+                        'bg-slate-50 text-slate-600 border-slate-200'
+                    }`}>
+                        {article.sentiment === 'positive' ? '✨ Positive' : 
+                         article.sentiment === 'negative' ? '⚠️ Sensitive' : 'Neutral'}
+                    </span>
+                )}
             </div>
             
-            <h3 className="text-lg font-bold text-slate-900 leading-tight mb-2 group-hover:text-brand-600 transition-colors">
-                {article.title}
+            <h3 className="text-lg font-bold text-slate-900 leading-tight mb-2 group-hover:text-brand-600 transition-colors flex items-start gap-2">
+                {detoxMode && article.rewrittenTitle ? (
+                    <>
+                        <span className="flex-1">{article.rewrittenTitle}</span>
+                        <span className="shrink-0 mt-1 px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 text-[8px] font-black uppercase flex items-center gap-0.5">
+                            <ShieldCheck size={8} /> Shielded
+                        </span>
+                    </>
+                ) : article.title}
             </h3>
             
             <p className="text-slate-600 text-sm line-clamp-2">

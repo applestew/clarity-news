@@ -6,23 +6,26 @@ import DetoxDashboard from './components/DetoxDashboard';
 import ArticleDetail from './components/ArticleDetail';
 import Onboarding from './components/Onboarding';
 import ProfileSettings from './components/ProfileSettings';
-import { fetchCuratedNews, analyzeDetoxProgress } from './services/geminiService';
+import { fetchCuratedNews, analyzeDetoxProgress, processArticleDetox } from './services/geminiService';
 import { NewsArticle, ViewState, DetoxStats, UserProfile, FilterScope } from './types';
-import { RefreshCw, Loader2, Search, Globe, MapPin, Zap, ArrowLeft, Clock } from 'lucide-react';
+import { RefreshCw, Loader2, Search, Globe, MapPin, Zap, ArrowLeft, Clock, Leaf, Smile, Sparkles } from 'lucide-react';
 
 // Mock data for stats
 const INITIAL_STATS: DetoxStats = {
-  dailyTimeSpent: 45,
-  storiesRead: 12,
-  anxietyScore: 2,
-  topicsAvoided: ['Celebrity Gossip', 'Violent Crime', 'Partisan Outrage'],
+  dailyTimeSpent: 0,
+  storiesRead: 0,
+  zenScore: 100,
+  topicsAvoided: ['Partisan Outrage', 'Clickbait', 'Sensationalism'],
   moodTrend: [
-    { day: 'M', mood: 6 },
+    { day: 'M', mood: 7 },
+    { day: 'T', mood: 6 },
+    { day: 'W', mood: 8 },
     { day: 'T', mood: 7 },
-    { day: 'W', mood: 6 },
-    { day: 'T', mood: 8 },
-    { day: 'F', mood: 9 },
-  ]
+    { day: 'F', mood: 8 },
+  ],
+  sentimentDistribution: { positive: 0, neutral: 0, negative: 0 },
+  shieldedCount: 0,
+  totalProcessed: 0
 };
 
 const MAJOR_COUNTRIES = [
@@ -42,6 +45,13 @@ const App: React.FC = () => {
   const [coachMessage, setCoachMessage] = useState<string>("");
   const [lastUpdated, setLastUpdated] = useState<number | null>(null);
   
+  // ✅ ADDED: Detox Mode State
+  const [detoxMode, setDetoxMode] = useState<boolean>(() => {
+    const saved = localStorage.getItem('clarity_detox_mode');
+    return saved === 'true';
+  });
+  const [moodFilter, setMoodFilter] = useState<'Just Positives' | 'Balanced' | 'Full Feed (Calmed)'>('Balanced');
+  
   // Filter & Search State
   const [filterScope, setFilterScope] = useState<FilterScope>('top10');
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -49,6 +59,38 @@ const App: React.FC = () => {
 
   // Background refresh staging
   const [pendingArticles, setPendingArticles] = useState<NewsArticle[]>([]);
+  
+  // ✅ ADDED: Tracking history for stats
+  const [readCount, setReadCount] = useState<number>(() => {
+    const saved = localStorage.getItem('clarity_read_count');
+    return saved ? parseInt(saved, 10) : 0;
+  });
+
+  // ✅ ADDED: Calculate Real-time Stats
+  const realStats = React.useMemo(() => {
+    const total = articles.length;
+    if (total === 0) return INITIAL_STATS;
+
+    const positive = articles.filter(a => a.sentiment === 'positive').length;
+    const neutral = articles.filter(a => a.sentiment === 'neutral' || !a.sentiment).length;
+    const negative = articles.filter(a => a.sentiment === 'negative').length;
+    const shielded = articles.filter(a => a.rewrittenTitle && a.rewrittenTitle !== a.originalTitle).length;
+
+    // Zen Score: Percentage of non-negative news, with extra weight for positive
+    // (Positive * 1.5 + Neutral) / (Total * 1.5) * 100
+    const zenBase = (positive * 1.5) + neutral;
+    const zenMax = (total * 1.5);
+    const zenScore = total > 0 ? Math.round((zenBase / zenMax) * 100) : 100;
+
+    return {
+      ...INITIAL_STATS,
+      storiesRead: readCount,
+      sentimentDistribution: { positive, neutral, negative },
+      shieldedCount: shielded,
+      totalProcessed: total,
+      zenScore
+    };
+  }, [articles, readCount]);
 
   const loadNews = useCallback(async (
       profile: UserProfile, 
@@ -65,15 +107,20 @@ const App: React.FC = () => {
 
     const fetchedArticles = await fetchCuratedNews(profile, scope, query, region, excludeTitles);
     
-    if (fetchedArticles.length > 0) {
+    // 🔌 INTEGRATION POINT: Process batch for sentiment and rewriting
+    const processedArticles = await Promise.all(
+        fetchedArticles.map(article => processArticleDetox(article))
+    );
+    
+    if (processedArticles.length > 0) {
         if (background) {
-            setPendingArticles(fetchedArticles);
+            setPendingArticles(processedArticles);
         } else {
-            console.log("STATE DATA: Updating articles in src App.tsx", fetchedArticles.length);
-            setArticles(fetchedArticles);
+            console.log("STATE DATA: Updating articles in src App.tsx", processedArticles.length);
+            setArticles(processedArticles);
              setLastUpdated(Date.now());
              localStorage.setItem(CACHE_KEY, JSON.stringify({
-                articles: fetchedArticles,
+                articles: processedArticles,
                 timestamp: Date.now(),
                 scope,
                 region,
@@ -173,6 +220,11 @@ const App: React.FC = () => {
     }
   }, [userProfile]);
 
+  // ✅ ADDED: Persist Detox Mode
+  useEffect(() => {
+    localStorage.setItem('clarity_detox_mode', String(detoxMode));
+  }, [detoxMode]);
+
   const handleLogout = () => {
       localStorage.removeItem('clarity_user_profile');
       localStorage.removeItem(CACHE_KEY);
@@ -216,6 +268,12 @@ const App: React.FC = () => {
   const handleArticleClick = (article: NewsArticle) => {
     setSelectedArticle(article);
     setCurrentView(ViewState.ARTICLE);
+    // ✅ ADDED: Track read history
+    setReadCount(prev => {
+        const next = prev + 1;
+        localStorage.setItem('clarity_read_count', String(next));
+        return next;
+    });
   };
 
   const applyPendingUpdates = () => {
@@ -244,7 +302,7 @@ const App: React.FC = () => {
       case ViewState.DASHBOARD:
         return (
           <DetoxDashboard 
-            stats={INITIAL_STATS} 
+            stats={realStats} 
             weaningMode={weaningMode}
             onToggleWeaning={() => setWeaningMode(!weaningMode)}
           />
@@ -328,7 +386,65 @@ const App: React.FC = () => {
                         </button>
                     )}
                 </div>
+
+                {/* ✅ ADDED: Mental Health Mode Toggle & Mood Filter */}
+                <div className="flex items-center gap-4 bg-white/50 backdrop-blur-sm p-1.5 rounded-full border border-slate-200">
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
+                         <Leaf size={16} />
+                         <span className="text-xs font-bold uppercase tracking-tight">Mental Health Mode</span>
+                         <button 
+                            onClick={() => setDetoxMode(!detoxMode)}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${detoxMode ? 'bg-emerald-600' : 'bg-slate-300'}`}
+                         >
+                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${detoxMode ? 'translate-x-6' : 'translate-x-1'}`} />
+                         </button>
+                    </div>
+
+                    {detoxMode && (
+                        <div className="flex items-center gap-1">
+                            {(['Just Positives', 'Balanced', 'Full Feed (Calmed)'] as const).map(m => (
+                                <button
+                                    key={m}
+                                    onClick={() => setMoodFilter(m)}
+                                    className={`px-3 py-1 rounded-full text-[10px] font-bold transition-all whitespace-nowrap ${moodFilter === m ? 'bg-emerald-600 text-white' : 'bg-white text-slate-500 border border-slate-100'}`}
+                                >
+                                    {m}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
+            
+            {/* ✅ ADDED: Good News Section */}
+            {detoxMode && articles.some(a => a.sentiment === 'positive') && (
+                <div className="bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl p-6 text-white shadow-lg overflow-hidden relative">
+                    <Sparkles className="absolute top-2 right-2 opacity-20" size={80} />
+                    <div className="flex items-center gap-2 mb-4">
+                        <Smile size={24} />
+                        <h2 className="text-xl font-bold italic">✨ Good News Today</h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {articles.filter(a => a.sentiment === 'positive').slice(0, 2).map(a => (
+                            <div key={`good-${a.id}`} className="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20">
+                                <h4 className="font-bold text-sm mb-1">{a.rewrittenTitle || a.title}</h4>
+                                <p className="text-xs text-white/80 line-clamp-1">{a.source}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+            
+            {/* ✅ ADDED: Daily Positive Digest */}
+            {detoxMode && articles.filter(a => a.sentiment === 'positive').length > 0 && (
+                <div className="flex items-center gap-2 px-2 py-1">
+                    <Sparkles className="text-amber-500" size={16} />
+                    <span className="text-sm font-bold text-slate-700">Daily Positive Digest:</span>
+                    <div className="text-xs text-slate-500 flex-1 overflow-hidden whitespace-nowrap">
+                        {articles.filter(a => a.sentiment === 'positive').map(a => `🌟 ${a.rewrittenTitle || a.title}`).join(' | ')}
+                    </div>
+                </div>
+            )}
             
             {!loading && articles.length > 0 && (
                 <div className="flex items-center justify-end gap-2 text-xs text-slate-400 px-2">
@@ -372,13 +488,26 @@ const App: React.FC = () => {
 
             {articles.length > 0 && (
                 <div className={`grid grid-cols-1 gap-4 ${loading && articles.length === 0 ? 'opacity-50 pointer-events-none' : ''}`}>
-                    {articles.map(article => (
+                    {articles
+                      .filter(article => {
+                          if (!detoxMode) return true;
+                          
+                          // ✅ ADDED: Strict Credibility Filter
+                          // If not in Full Feed, hide anything that isn't verified or is flagged as negative
+                          if (moodFilter !== 'Full Feed (Calmed)' && article.verified === false) return false;
+
+                          if (moodFilter === 'Just Positives') return article.sentiment === 'positive';
+                          if (moodFilter === 'Balanced') return article.sentiment !== 'negative';
+                          return true; // Full Feed (Calmed)
+                      })
+                      .map(article => (
                         <NewsCard 
-                        key={article.id} 
-                        article={article} 
-                        onClick={handleArticleClick} 
+                          key={article.id} 
+                          article={article} 
+                          onClick={handleArticleClick}
+                          detoxMode={detoxMode}
                         />
-                    ))}
+                      ))}
                     
                     {/* Load More Button */}
                     <button 

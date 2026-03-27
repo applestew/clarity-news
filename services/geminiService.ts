@@ -4,7 +4,7 @@ import { NewsArticle, UserProfile, FilterScope } from "../types";
 
 // DIRECT API KEY INTEGRATION
 // This prevents the "Cannot read properties of undefined" error by bypassing environment checks.
-const API_KEY = "Your_API_Key";
+const API_KEY = "AIzaSyC40sHs2WvLl4_TE-DCWuyINhnhB2efr88";
 
 const ai = new GoogleGenAI({ apiKey: API_KEY });
 

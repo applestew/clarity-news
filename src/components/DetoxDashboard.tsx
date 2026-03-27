@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { DetoxStats } from '../types';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { ShieldCheck, Clock, Brain, Activity } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
+import { ShieldCheck, Clock, Brain, Activity, Sun, Sparkles } from 'lucide-react';
 
 interface DetoxDashboardProps {
   stats: DetoxStats;
@@ -20,8 +20,8 @@ const DetoxDashboard: React.FC<DetoxDashboardProps> = ({ stats, weaningMode, onT
             <ShieldCheck size={24} />
           </div>
           <div>
-            <p className="text-sm text-slate-500 font-medium">Quality Filter</p>
-            <p className="text-2xl font-bold text-slate-800">98%</p>
+            <p className="text-sm text-slate-500 font-medium">Headlines Shielded</p>
+            <p className="text-2xl font-bold text-slate-800">{stats.shieldedCount}</p>
           </div>
         </div>
 
@@ -30,8 +30,8 @@ const DetoxDashboard: React.FC<DetoxDashboardProps> = ({ stats, weaningMode, onT
             <Clock size={24} />
           </div>
           <div>
-            <p className="text-sm text-slate-500 font-medium">Time Saved</p>
-            <p className="text-2xl font-bold text-slate-800">45m</p>
+            <p className="text-sm text-slate-500 font-medium">Stories Read</p>
+            <p className="text-2xl font-bold text-slate-800">{stats.storiesRead}</p>
           </div>
         </div>
 
@@ -40,18 +40,18 @@ const DetoxDashboard: React.FC<DetoxDashboardProps> = ({ stats, weaningMode, onT
             <Brain size={24} />
           </div>
           <div>
-            <p className="text-sm text-slate-500 font-medium">Mental Load</p>
-            <p className="text-2xl font-bold text-slate-800">Low</p>
+            <p className="text-sm text-slate-500 font-medium">Detected Positive</p>
+            <p className="text-2xl font-bold text-slate-800">{stats.sentimentDistribution.positive}</p>
           </div>
         </div>
 
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center space-x-4">
-          <div className="p-3 bg-orange-50 rounded-full text-orange-600">
-            <Activity size={24} />
+          <div className="p-3 bg-brand-50 rounded-full text-brand-600">
+            <Sun size={24} />
           </div>
           <div>
-            <p className="text-sm text-slate-500 font-medium">Anxiety Level</p>
-            <p className="text-2xl font-bold text-slate-800">2/10</p>
+            <p className="text-sm text-slate-500 font-medium">Zen Index</p>
+            <p className="text-2xl font-bold text-slate-800">{stats.zenScore}%</p>
           </div>
         </div>
       </div>
@@ -59,19 +59,49 @@ const DetoxDashboard: React.FC<DetoxDashboardProps> = ({ stats, weaningMode, onT
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Chart */}
         <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-            <h3 className="text-lg font-semibold text-slate-800 mb-6">Mood vs. Consumption</h3>
-            <div className="h-64 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={stats.moodTrend}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                        <XAxis dataKey="day" tick={{fill: '#64748b', fontSize: 12}} axisLine={false} tickLine={false} />
-                        <YAxis hide domain={[0, 10]} />
-                        <Tooltip 
-                            contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}}
-                        />
-                        <Line type="monotone" dataKey="mood" stroke="#0ea5e9" strokeWidth={3} dot={{r: 4, fill: '#0ea5e9'}} activeDot={{r: 6}} />
-                    </LineChart>
-                </ResponsiveContainer>
+            <h3 className="text-lg font-semibold text-slate-800 mb-6 font-display">Feed Sentiment Analysis</h3>
+            <div className="h-64 w-full flex items-center justify-around">
+                <div className="w-1/2 h-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                            <Pie
+                                data={[
+                                    { name: 'Positive', value: stats.sentimentDistribution.positive },
+                                    { name: 'Neutral', value: stats.sentimentDistribution.neutral },
+                                    { name: 'Negative', value: stats.sentimentDistribution.negative },
+                                ]}
+                                cx="50%"
+                                cy="50%"
+                                innerRadius={60}
+                                outerRadius={80}
+                                paddingAngle={5}
+                                dataKey="value"
+                            >
+                                <Cell fill="#10b981" />
+                                <Cell fill="#94a3b8" />
+                                <Cell fill="#f59e0b" />
+                            </Pie>
+                            <Tooltip />
+                        </PieChart>
+                    </ResponsiveContainer>
+                </div>
+                <div className="w-1/2 space-y-4">
+                    <div className="flex items-center justify-between text-sm">
+                        <span className="text-emerald-600 font-bold">☀️ Positive</span>
+                        <span className="text-slate-500">{Math.round((stats.sentimentDistribution.positive / stats.totalProcessed) * 100) || 0}%</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                        <span className="text-slate-400 font-bold">☁️ Neutral</span>
+                        <span className="text-slate-500">{Math.round((stats.sentimentDistribution.neutral / stats.totalProcessed) * 100) || 0}%</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                        <span className="text-amber-500 font-bold">⚠️ Negative</span>
+                        <span className="text-slate-500">{Math.round((stats.sentimentDistribution.negative / stats.totalProcessed) * 100) || 0}%</span>
+                    </div>
+                    <p className="text-[10px] text-slate-400 mt-4 leading-relaxed">
+                        Analysis based on the {stats.totalProcessed} articles currently in your curated feed.
+                    </p>
+                </div>
             </div>
         </div>
 
