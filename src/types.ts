@@ -16,6 +16,7 @@ export interface NewsArticle {
   category: string;
   country: string;
   newsType: string;
+  content?: string;
   originalTitle?: string;
   rewrittenTitle?: string;
   sentiment?: 'positive' | 'neutral' | 'negative';

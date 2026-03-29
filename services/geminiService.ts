@@ -4,7 +4,7 @@ import { NewsArticle, UserProfile, FilterScope } from "../types";
 
 // DIRECT API KEY INTEGRATION
 // This prevents the "Cannot read properties of undefined" error by bypassing environment checks.
-const API_KEY = "Your_API_Key_Here";
+const API_KEY = "AIzaSyC40sHs2WvLl4_TE-DCWuyINhnhB2efr88";
 
 const ai = new GoogleGenAI({ apiKey: API_KEY });
 
@@ -200,15 +200,16 @@ export const fetchCuratedNews = async (
 
     let sourceInstruction = "";
     let scopeInstruction = "";
-    // OPTIMIZATION: Reduced count to 5 to improve speed significantly (target < 10s)
-    let countInstruction = "Find exactly 5 top news stories.";
+    const currentTimeISO = new Date().toISOString();
+    const randomSeed = Math.random().toString(36).substring(7);
+    let countInstruction = "Find exactly 5 fresh, high-impact news stories published in the last 1-4 hours.";
 
     // 1. Handle Source Instructions
     if (shouldFetchIndiaNews) {
-      const sourcesList = "'The Hindu', 'The Indian Express', 'NDTV', 'Hindustan Times', 'News18', 'Scroll.in', 'India Today', 'The Wire', 'Press Trust of India (PTI)', 'Deccan Herald', 'Livemint', 'Firstpost'";
-      sourceInstruction = `Use these trusted Indian sources: ${sourcesList}.`;
+      const sourcesList = "'NDTV', 'The Hindu', 'Hindustan Times', 'Indian Express', 'Reuters India', 'ANI News', 'Press Trust of India'";
+      sourceInstruction = `Use these trusted sources: ${sourcesList}.`;
     } else {
-      sourceInstruction = `Use verified news outlets in ${profile.country}.`;
+      sourceInstruction = `Use major global verified news outlets like 'BBC News', 'Reuters', 'CNN', 'Associated Press', 'Al Jazeera'.`;
     }
 
     // 2. Handle Scope/Filter Instructions
@@ -241,15 +242,20 @@ export const fetchCuratedNews = async (
       ? `DO NOT include these stories: ${JSON.stringify(excludeTitles.slice(-10))}. Find different/newer ones.`
       : "";
 
-    // STEP 1: Grounded Search
     const searchPrompt = `
+      Timestamp: ${currentTimeISO}
+      Random Seed: ${randomSeed}
+      
       Task: ${countInstruction}
       Scope: ${scopeInstruction}
       Sources: ${sourceInstruction}
       ${topicInstruction}
       ${excludeInstruction}
       
-      Requirement: Get original article links. Find the main article image URL from metadata if possible.
+      CRITICAL: You MUST find REAL, LIVE news stories from the last 1-6 hours. 
+      Avoid any stories mentioned in the 'excludeTitles' list.
+      Prioritize BREAKING news and active developments.
+      Requirement: Get original article links and image URLs.
     `;
 
     console.log("DEBUG: GEMINI SEARCH PROMPT:", searchPrompt);

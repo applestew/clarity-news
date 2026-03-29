@@ -6,7 +6,8 @@ import DetoxDashboard from './components/DetoxDashboard';
 import ArticleDetail from './components/ArticleDetail';
 import Onboarding from './components/Onboarding';
 import ProfileSettings from './components/ProfileSettings';
-import { fetchCuratedNews, analyzeDetoxProgress, processArticleDetox } from './services/geminiService';
+import { analyzeDetoxProgress, processArticleDetox } from './services/geminiService';
+import { fetchRealNews } from './services/newsService';
 import { NewsArticle, ViewState, DetoxStats, UserProfile, FilterScope } from './types';
 import { RefreshCw, Loader2, Search, Globe, MapPin, Zap, ArrowLeft, Clock, Leaf, Smile, Sparkles } from 'lucide-react';
 
@@ -102,24 +103,21 @@ const App: React.FC = () => {
     
     if (!background) setLoading(true);
     
-    // If loading more (pagination), exclude current titles
-    const excludeTitles = background ? [] : articles.map(a => a.title);
-
-    const fetchedArticles = await fetchCuratedNews(profile, scope, query, region, excludeTitles);
+    // 1. Fetch REAL news data from NewsAPI
+    const rawArticles = await fetchRealNews(profile, scope, query, region);
     
-    // 🔌 INTEGRATION POINT: Process batch for sentiment and rewriting
+    // 2. ENRICH news data with Gemini
     const processedArticles = await Promise.all(
-        fetchedArticles.map(article => processArticleDetox(article))
+        rawArticles.map(article => processArticleDetox(article))
     );
     
     if (processedArticles.length > 0) {
         if (background) {
             setPendingArticles(processedArticles);
         } else {
-            console.log("STATE DATA: Updating articles in src App.tsx", processedArticles.length);
             setArticles(processedArticles);
-             setLastUpdated(Date.now());
-             localStorage.setItem(CACHE_KEY, JSON.stringify({
+            setLastUpdated(Date.now());
+            localStorage.setItem(CACHE_KEY, JSON.stringify({
                 articles: processedArticles,
                 timestamp: Date.now(),
                 scope,
@@ -134,19 +132,19 @@ const App: React.FC = () => {
         setCoachMessage(tip);
         setLoading(false);
     }
-  }, []); // Dependency on articles removed to avoid loops, logic simplified
+  }, []);
 
   // Wrapper for UI triggered loads (always replaces feed)
   const handleManualLoad = (profile: UserProfile, scope: FilterScope, query: string = '', region: string = '') => {
       setLoading(true);
       setArticles([]); // Clear current
-      fetchCuratedNews(profile, scope, query, region, []).then(fetched => {
-          console.log("STATE DATA (Manual): Updating articles in src App.tsx", fetched.length);
-          setArticles(fetched);
+      fetchRealNews(profile, scope, query, region).then(async fetched => {
+          const enriched = await Promise.all(fetched.map(a => processArticleDetox(a)));
+          setArticles(enriched);
           setLastUpdated(Date.now());
           setLoading(false);
           localStorage.setItem(CACHE_KEY, JSON.stringify({
-            articles: fetched,
+            articles: enriched,
             timestamp: Date.now(),
             scope,
             region,
@@ -159,9 +157,9 @@ const App: React.FC = () => {
   const handleLoadMore = () => {
       if (!userProfile) return;
       setLoading(true);
-      const currentTitles = articles.map(a => a.title);
-      fetchCuratedNews(userProfile, filterScope, searchQuery, regionFilter, currentTitles).then(fetched => {
-           setArticles(prev => [...prev, ...fetched]);
+      fetchRealNews(userProfile, filterScope, searchQuery, regionFilter).then(async fetched => {
+           const enriched = await Promise.all(fetched.map(a => processArticleDetox(a)));
+           setArticles(prev => [...prev, ...enriched]);
            setLoading(false);
       });
   };
@@ -191,8 +189,11 @@ const App: React.FC = () => {
                     const isStale = Date.now() - timestamp > CACHE_DURATION;
                     if (isStale) {
                          // Trigger background refresh
-                         fetchCuratedNews(profile, scope, query, region).then(fresh => {
-                             if (fresh.length > 0) setPendingArticles(fresh);
+                         fetchRealNews(profile, scope, query, region).then(async fresh => {
+                             if (fresh.length > 0) {
+                                 const enriched = await Promise.all(fresh.map(a => processArticleDetox(a)));
+                                 setPendingArticles(enriched);
+                             }
                          });
                     }
                 } else {
